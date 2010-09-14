@@ -2,8 +2,26 @@
 
 # Log everything to /var/log/duplicity as well
 exec > >(tee -a /var/log/duplicity) 
-
 2>&1
+
+
+# Functions to strip paths of spaces
+_trim() #@ Trim spaces (or char in $2) from both ends of $1
+{
+    _TRIM=$1
+    trim_string=${_TRIM%%[!${2:- }]*}
+    _TRIM=${_TRIM#"$trim_string"}
+    trim_string=${_TRIM##*[!${2:- }]}
+    _TRIM=${_TRIM%"$trim_string"}
+}
+
+trim()
+{
+   _trim "$@"
+   printf "%s\n" "$_TRIM"
+}
+
+
 
 # Get our config settings
 source /etc/sysconfig/duplicity
@@ -20,12 +38,6 @@ src="/"
 url="s3+http://$AWS_BUCKET"
 options=" --s3-use-new-style --s3-european-buckets --asynchronous-upload --num-retries 10 --volsize=25"
 
-# A list of paths NOT to backup
-NO_DIR_FILE=/etc/duplicity/exclude_list
-# A list of any sub-paths from above we do want to backup
-YES_DIR_FILE=/etc/duplicity/include_list
-
-
 
 if [ -z "$DUPLICITY_VERBOSITY" ]; then 
 verbosity="-v3"
@@ -36,7 +48,7 @@ fi
 }
 
 backup() {	
-		duplicity "$duplicity_command"  $verbosity $options --include-globbing-filelist="$YES_DIR_FILE" --exclude-globbing-filelist="$NO_DIR_FILE" --encrypt-key="$KEYID" $src $url
+		duplicity "$duplicity_command"  $verbosity $options --include-globbing-filelist="$INCLUDE_LIST" --exclude-globbing-filelist="$EXCLUDE_LIST" --encrypt-key="$KEYID" $src $url
 }
 
 
@@ -47,7 +59,7 @@ run_duplicity() {
 
 file_list_options()
 {
-	options=$options --include-filelist="$YES_DIR_FILE" --exclude-filelist="$NO_DIR_FILE"
+	options=$options --include-filelist="$INCLUDE_LIST" --exclude-filelist="$EXCLUDE_LIST"
 }
 
 full() {
@@ -81,24 +93,34 @@ list() {
 
 verify()
 {
-			duplicity verify  $options $verbosity --include-filelist="$YES_DIR_FILE" --exclude-filelist="$NO_DIR_FILE" --encrypt-key="$KEYID" $url $src
+			duplicity verify  $options $verbosity --include-filelist="$INCLUDE_LIST" --exclude-filelist="$EXCLUDE_LIST" --encrypt-key="$KEYID" $url $src
 }
 
 restore()
 {
     files=""
-	message "Restoring $1 into $RESTORE_LOCATION"
-	if [ -n "$WHEN" ]; then
-		options="--restore-time $WHEN"
+    #Remove any leading or trailing slashes
+    _trim $1 /
+    RESTORE_FILES=$_TRIM
+	if [ $RESTORE_FILES != "_ALL_FILES_" ]; then
+		RESTORE_FILES="--file-to-restore=$RESTORE_FILES"
 	else
-		options=""
+		RESTORE_FILES=""
+	fi
+	if [ -n "$WHEN" ]; then
+		options="$options--restore-time $WHEN"
+	else
+		options="$options"
+	fi
+	if [ -e "$RESTORE_LOCATION" ]; then
+		echo "Restore location ($RESTORE_LOCATION) already exists, please remove"
+		exit 1
+	else
+		mkdir -p "$RESTORE_LOCATION"
 	fi
 
-	if [ "$*" != "_ALL_FILES_" ]; then
-		duplicity restore $verbosity --encrypt-key="$KEYID" $options --file-to-restore "$*" $url $RESTORE_LOCATION
-	else
-		duplicity restore $verbosity --encrypt-key="$KEYID" $options $url $RESTORE_LOCATION
-	fi
+	message "Restoring $RESTORE_FILES into $RESTORE_LOCATION"
+	duplicity restore $verbosity --encrypt-key="$KEYID" $options $RESTORE_FILES $options $url $RESTORE_LOCATION
 }
 
 status()

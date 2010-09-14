@@ -18,10 +18,12 @@ BACKUP_PATH="backups"
 
 export AWS_ACCESS_KEY_ID='XXXXXXXXX'
 export AWS_SECRET_ACCESS_KEY='XXXXXXXXXXX'
-export AWS_BUCKET='XXXXXXXXXXXXXX'
 
-# Set the directory to the hostname
-MACHINE=$(uname -n)
+# Allows bucket to be overwritten on commandline to restore check other machines backups
+# Normally I set AWS_BUCKET to be a base + machine name
+[ -z "$AWS_BUCKET" ] && export AWS_BUCKET=""
+
+
 
 # These files control what is and what isn't backed up
 # Rules are 
