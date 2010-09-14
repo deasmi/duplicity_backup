@@ -2,23 +2,24 @@
 MESSAGES=1
 
 # Number of full backups to keep around
-FULL_BACKUPS=2
+FULL_BACKUPS=4
 
 # The GPG key-id we are using
-KEYID="XXXXXXX"
+KEYID="9AF9A4A6"
 
 # GPG password 
 # Still set even if empty as duplicity will prompt otherwise
 export PASSPHRASE=""
 
-# Server to sftp/ssh to
-SERVER="rsync"
-# Path on the server for this backup set
-BACKUP_PATH="backups"
+# boto ( AWS Pythong module variables, need to be exported )
+export AWS_ACCESS_KEY_ID=''
+export AWS_SECRET_ACCESS_KEY=''
+[ -z "$AWS_BUCKET" ] && export AWS_BUCKET=''
+echo $AWS_BUCKET
 
-export AWS_ACCESS_KEY_ID='XXXXXXXXX'
-export AWS_SECRET_ACCESS_KEY='XXXXXXXXXXX'
-export AWS_BUCKET='XXXXXXXXXXXXXX'
+
+
+VERBOSITY=3
 
 # Set the directory to the hostname
 MACHINE=$(uname -n)
@@ -34,6 +35,5 @@ INCLUDE_LIST=${FILE_LIST_DIR}/include_list
 RESTORE_LOCATION=/tmp/duplicity_restore_root
 
 
-#Debugging level
-DUPLICITY_VERBOSITY=3
+
 
