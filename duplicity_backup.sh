@@ -93,7 +93,7 @@ list() {
 
 verify()
 {
-			duplicity verify  $options $verbosity --include-filelist="$INCLUDE_LIST" --exclude-filelist="$EXCLUDE_LIST" --encrypt-key="$KEYID" $url $src
+			duplicity verify  $options $verbosity --include-globbing-filelist="$INCLUDE_LIST" --exclude-globbing-filelist="$EXCLUDE_LIST" --encrypt-key="$KEYID" $url $src
 }
 
 restore()
