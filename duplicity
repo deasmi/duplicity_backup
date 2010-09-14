@@ -1,0 +1,39 @@
+# Set this to 1 to turn on status messages
+MESSAGES=1
+
+# Number of full backups to keep around
+FULL_BACKUPS=2
+
+# The GPG key-id we are using
+KEYID="XXXXXXX"
+
+# GPG password 
+# Still set even if empty as duplicity will prompt otherwise
+export PASSPHRASE=""
+
+# Server to sftp/ssh to
+SERVER="rsync"
+# Path on the server for this backup set
+BACKUP_PATH="backups"
+
+export AWS_ACCESS_KEY_ID='XXXXXXXXX'
+export AWS_SECRET_ACCESS_KEY='XXXXXXXXXXX'
+export AWS_BUCKET='XXXXXXXXXXXXXX'
+
+# Set the directory to the hostname
+MACHINE=$(uname -n)
+
+# These files control what is and what isn't backed up
+# Rules are 
+# Everything on system - EXCLUDE_LIST + INCLUDE_LIST is backed up
+FILE_LIST_DIR=/etc/duplicity
+EXCLUDE_LIST=${FILE_LIST_DIR}/exclude_list
+INCLUDE_LIST=${FILE_LIST_DIR}/include_list
+
+# Location to restore files to, ie. restore root
+RESTORE_LOCATION=/tmp/duplicity_restore_root
+
+
+#Debugging level
+DUPLICITY_VERBOSITY=3
+
