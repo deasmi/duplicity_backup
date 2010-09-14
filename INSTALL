@@ -16,10 +16,10 @@ and if you are using a passphrase on the GPG key
 PASSPHRASE
 
 
-Now mkdir /etc/duplicity and copy exclude_file_list and include_file_list into it
+Now mkdir /etc/duplicity and copy exclude_list and include_list into it
 Then edit these files to suit
-include_file_list is used to re-include subdirectories of the exlude_file_list only
-the script will backup everything on the server not in exclude_file_list
+include_list is used to re-include subdirectories of the exlude_list only
+the script will backup everything on the server not in exclude_list
 
 Finally put duplicity_backup.sh somewhere
 
