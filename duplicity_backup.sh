@@ -100,15 +100,10 @@ restore()
 {
     files=""
     #Remove any leading or trailing slashes
-    _trim $1 /
-    RESTORE_FILES=$_TRIM
-	if [ $RESTORE_FILES != "_ALL_FILES_" ]; then
-		RESTORE_FILES="--file-to-restore=$RESTORE_FILES"
-	else
-		RESTORE_FILES=""
-	fi
+    #_trim $* /
+    RESTORE_FILES=$*
 	if [ -n "$WHEN" ]; then
-		options="$options--restore-time $WHEN"
+		options="$options --restore-time $WHEN"
 	else
 		options="$options"
 	fi
@@ -120,7 +115,7 @@ restore()
 	fi
 
 	message "Restoring $RESTORE_FILES into $RESTORE_LOCATION"
-	duplicity restore $verbosity --encrypt-key="$KEYID" $options $RESTORE_FILES $options $url $RESTORE_LOCATION
+	duplicity restore $verbosity --encrypt-key="$KEYID" $options --file-to-restore="$RESTORE_FILES" $options $url $RESTORE_LOCATION
 }
 
 status()
@@ -161,7 +156,8 @@ case "$1" in
 			if [ -z "$2" ]; then
 				echo "You must specify a file/directory to resotre or _ALL_FILES_. Not do NOT include / at start of file name"
 			else
-				restore $2
+				shift
+				restore $* 
 			fi
 				;;
 		*)
